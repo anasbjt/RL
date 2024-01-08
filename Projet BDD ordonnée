@@ -72,6 +72,34 @@ CREATE TABLE Compagnie_Theatre (
     PRIMARY KEY (ID_compagnie, ID_theatre)
 );
 
+CREATE TABLE Grant_Agency (
+    ID_agency VARCHAR(50) PRIMARY KEY,
+    Name VARCHAR(50)
+);
+
+CREATE TABLE Theatre_Grant (
+    ID_theatre VARCHAR(50),
+    ID_agency VARCHAR(50),
+    Amount DECIMAL(10,2),
+    PRIMARY KEY (ID_theatre, ID_agency),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+    FOREIGN KEY (ID_agency) REFERENCES Grant_Agency(ID_agency)
+);
+
+
+CREATE TABLE Grant_Schedule (
+    ID_theatre VARCHAR(50),
+    ID_agency VARCHAR(50),
+    Start_Date DATE,
+    End_Date DATE,
+    Payment_Frequency VARCHAR(50),
+    PRIMARY KEY (ID_theatre, ID_agency),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+    FOREIGN KEY (ID_agency) REFERENCES Grant_Agency(ID_agency)
+);
+
+ALTER TABLE Theatre ADD Balance DECIMAL(10,2) DEFAULT 0;
+
 ALTER TABLE Theatre_compagnie_name DROP COLUMN ID_theatre;
 
 
@@ -183,6 +211,15 @@ INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T7');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T8');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C2', 'T9');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C1', 'T10');
+
+INSERT INTO Grant_Agency (ID_agency, Name) VALUES ('M1', 'Municipalité');
+INSERT INTO Grant_Agency (ID_agency, Name) VALUES ('C1', 'Ministère de la Culture');
+
+INSERT INTO Theatre_Grant (ID_theatre, ID_agency, Amount) VALUES ('T1', 'M1', 20000.00);
+INSERT INTO Theatre_Grant (ID_theatre, ID_agency, Amount) VALUES ('T2', 'C1', 50000.00);
+
+INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T1', 'M1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Mensuel');
+INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T2', 'C1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Semestriel');
 
 
 -- Ajouter 10 tickets supplémentaires
@@ -577,6 +614,94 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Discounted Price: ' || discounted_price);
 END;
 /
+
+
+
+CREATE OR REPLACE PROCEDURE Calculate_Balance AS
+BEGIN
+    -- Calcul du solde pour chaque théâtre
+    FOR rec IN (SELECT ID_theatre FROM Theatre) LOOP
+        DECLARE
+            total_revenue DECIMAL(10,2) := 0;
+            total_expense DECIMAL(10,2) := 0;
+            net_balance DECIMAL(10,2);
+        BEGIN
+            -- Calcul des revenus pour le mois en cours
+            SELECT SUM(Chiffre_affaire)
+            INTO total_revenue
+            FROM Recette
+            WHERE ID_theatre = rec.ID_theatre
+            AND EXTRACT(MONTH FROM Date_recette) = EXTRACT(MONTH FROM SYSDATE)
+            AND EXTRACT(YEAR FROM Date_recette) = EXTRACT(YEAR FROM SYSDATE);
+
+            -- Calcul des dépenses pour le mois en cours
+            SELECT SUM(Prix)
+            INTO total_expense
+            FROM Ticket
+            WHERE ID_theatre = rec.ID_theatre
+            AND EXTRACT(MONTH FROM Date_ticket) = EXTRACT(MONTH FROM SYSDATE)
+            AND EXTRACT(YEAR FROM Date_ticket) = EXTRACT(YEAR FROM SYSDATE);
+
+            -- Calcul du solde
+            net_balance := total_revenue - total_expense;
+
+            -- Mise à jour du solde dans la table Theatre
+            UPDATE Theatre
+            SET Balance = net_balance
+            WHERE ID_theatre = rec.ID_theatre;
+        END;
+    END LOOP;
+END Calculate_Balance;
+/
+
+
+
+CREATE OR REPLACE TRIGGER Trigger_Balance_Update
+AFTER INSERT ON Representation
+FOR EACH ROW
+BEGIN
+    -- Mettre à jour le solde après chaque représentation
+    Calculate_Balance;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE Payment_Rules AS
+    total_fees DECIMAL(10, 2);
+    staging_costs DECIMAL(10, 2);
+    travel_expenses DECIMAL(10, 2);
+BEGIN
+    -- Calcul des frais totaux pour les comédiens
+    SELECT SUM(Prix)
+    INTO total_fees
+    FROM Ticket
+    WHERE ID_theatre = 'T1' -- Vous pouvez ajuster le théâtre selon vos besoins
+    AND Reduction = 0; -- Assumant que les frais complets sont sans réduction
+
+    -- Calcul des coûts de mise en scène pour le théâtre T1
+    SELECT Prix
+    INTO staging_costs
+    FROM Production
+    WHERE ID_theatre = 'T1';
+
+    -- Calcul des frais de déplacement pour le théâtre T1
+    SELECT SUM(Prix)
+    INTO travel_expenses
+    FROM Ticket
+    WHERE ID_theatre = 'T1' -- Vous pouvez ajuster le théâtre selon vos besoins
+    AND Reduction > 0; -- Assumant que les frais de déplacement ont une réduction
+
+    -- Affichage des résultats
+    DBMS_OUTPUT.PUT_LINE('Frais totaux des comédiens pour le théâtre T1 : ' || total_fees);
+    DBMS_OUTPUT.PUT_LINE('Coûts de mise en scène pour le théâtre T1 : ' || staging_costs);
+    DBMS_OUTPUT.PUT_LINE('Frais de déplacement pour le théâtre T1 : ' || travel_expenses);
+
+    -- Vous pouvez ajouter ici la logique pour effectuer les paiements en fonction des résultats calculés
+END Payment_Rules;
+/
+
+CALL Payment_Rules;
+
 
 
 
