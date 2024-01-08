@@ -505,20 +505,20 @@ IS
     v_discount_percentage NUMBER := 0;
     v_discounted_price NUMBER;
 BEGIN
-    -- Get the base price from the Representation table using the provided title
+-- Récupère le prix de base depuis la table Representation en utilisant le titre donné
     SELECT Prix INTO v_base_price
     FROM Representation
     WHERE Titre = p_representation_title;
 
-    -- Check if the customer is a student and set the discount accordingly
+-- Vérifie si le client est un étudiant et définit la réduction en conséquence
     IF p_is_student THEN
         v_discount_percentage := 20;
     END IF;
 
-    -- Calculate the discounted price
+-- Calcule la réduction
     v_discounted_price := v_base_price - (v_base_price * (v_discount_percentage / 100));
 
-    -- Ensure the price is not negative
+-- Assure que le prix ne soit pas négatif
     IF v_discounted_price < 0 THEN
         v_discounted_price := 0;
     END IF;
@@ -526,9 +526,9 @@ BEGIN
     RETURN v_discounted_price;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
+        RETURN -1; 
     WHEN OTHERS THEN
-        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
+        RETURN -1; 
 END CalculateTicketPrice;
 /
 
@@ -548,7 +548,7 @@ END;
 
 
 
-
+-- calcule de la réduction 
 CREATE OR REPLACE FUNCTION calculate_discounted_price(
     in_ticket_id VARCHAR2
 )
@@ -666,6 +666,11 @@ END;
 /
 
 
+CALL Calculate_Balance;
+
+    
+
+    
 CREATE OR REPLACE PROCEDURE Payment_Rules AS
     total_fees DECIMAL(10, 2);
     staging_costs DECIMAL(10, 2);
