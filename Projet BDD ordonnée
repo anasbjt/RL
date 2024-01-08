@@ -257,7 +257,7 @@ JOIN Theatre ON Representation.ID_theatre = Theatre.ID_theatre;
 
 
 
-
+-- Remplissage de la capacité d'un théatre en %
 SELECT
     T.ID_theatre,
     T.Nom AS Nom_theatre,
@@ -272,10 +272,6 @@ GROUP BY
     T.ID_theatre, T.Nom, T.Capacite
 ORDER BY
     T.ID_theatre;
-
-
-
-
 
 
 
@@ -513,52 +509,60 @@ END;
 
 
 
-CREATE OR REPLACE FUNCTION calculate_discount(
-    in_representation_id VARCHAR2,
-    in_current_date DATE
+
+
+
+CREATE OR REPLACE FUNCTION calculate_discounted_price(
+    in_ticket_id VARCHAR2
 )
 RETURN DECIMAL
 IS
-    v_capacity INT;
+    v_theatre_capacity INT;
     v_sold_tickets INT;
-    v_discount DECIMAL(10, 2);
-    v_representation_date DATE;
+    v_discount DECIMAL(10, 2) := 0.30; -- 30% de rabais
+    v_ticket_price DECIMAL(10, 2);
+    v_discounted_price DECIMAL(10, 2);
 BEGIN
-    -- Récupérer la capacité du théâtre pour la représentation donnée
-    SELECT Capacite
-    INTO v_capacity
-    FROM Theatre
-    WHERE ID_theatre = (
-        SELECT ID_theatre
-        FROM Representation
-        WHERE ID_representation = in_representation_id
+    -- Récupérer la capacité du théâtre du ticket
+    SELECT T.Capacite
+    INTO v_theatre_capacity
+    FROM Theatre T
+    WHERE T.ID_theatre = (
+        SELECT R.ID_theatre
+        FROM Representation R
+        JOIN Ticket Ti ON R.ID_representation = Ti.ID_representation
+        WHERE Ti.ID_ticket = in_ticket_id
     );
 
-    -- Récupérer la date de la représentation
-    SELECT Date_representation
-    INTO v_representation_date
-    FROM Representation
-    WHERE ID_representation = in_representation_id;
-
-    -- Récupérer le nombre de billets vendus pour la représentation donnée
-    SELECT COUNT(ID_ticket)
+    -- Récupérer le nombre de billets vendus pour la représentation du ticket
+    SELECT COUNT(Ti.ID_ticket)
     INTO v_sold_tickets
-    FROM Ticket
-    WHERE ID_representation = in_representation_id;
+    FROM Ticket Ti
+    WHERE Ti.ID_representation = (
+        SELECT ID_representation
+        FROM Ticket
+        WHERE ID_ticket = in_ticket_id
+    );
+
+    -- Récupérer le prix du ticket
+    SELECT Ti.Prix
+    INTO v_ticket_price
+    FROM Ticket Ti
+    WHERE Ti.ID_ticket = in_ticket_id;
 
     -- Calculer le pourcentage de remplissage de la salle
-    IF v_capacity > 0 THEN
-        v_discount := (v_sold_tickets / v_capacity) * 100;
+    IF v_theatre_capacity > 0 THEN
+        v_discounted_price := CASE
+            WHEN (v_sold_tickets / v_theatre_capacity) * 100 > 50 THEN
+                v_ticket_price * (1 - v_discount)
+            ELSE
+                v_ticket_price
+        END;
     ELSE
-        v_discount := 0;
+        v_discounted_price := v_ticket_price;
     END IF;
 
-    -- Appliquer le rabais de 30% si c'est le jour de la représentation et la salle est remplie à moins de 50%
-    IF in_current_date = v_representation_date AND v_discount < 50 THEN
-        RETURN 0.30;  -- 30% de rabais
-    ELSE
-        RETURN 0;     -- Aucun rabais
-    END IF;
+    RETURN v_discounted_price;
 END;
 /
 
@@ -566,16 +570,13 @@ END;
 
 -- Exemple d'utilisation de la fonction
 DECLARE
-    discount DECIMAL;
+    ticket_id VARCHAR2(50) := 'TICK34'; -- Remplacez par l'ID du ticket 
+    discounted_price DECIMAL(10, 2);
 BEGIN
-    discount := calculate_discount('R11', SYSDATE);
-    DBMS_OUTPUT.PUT_LINE('Discount: ' || discount);
+    discounted_price := calculate_discounted_price(ticket_id);
+    DBMS_OUTPUT.PUT_LINE('Discounted Price: ' || discounted_price);
 END;
 /
-
-
-
-
 
 
 
