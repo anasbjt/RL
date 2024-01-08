@@ -184,6 +184,41 @@ INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T8');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C2', 'T9');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C1', 'T10');
 
+
+-- Ajouter 10 tickets supplémentaires
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK34', TO_DATE('2023-06-15', 'YYYY-MM-DD'), 55.00, 0, 'R11', 'T1');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK35', TO_DATE('2023-07-20', 'YYYY-MM-DD'), 50.00, 0, 'R12', 'T2');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK36', TO_DATE('2023-08-25', 'YYYY-MM-DD'), 49.25, 0, 'R13', 'T3');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK37', TO_DATE('2023-09-30', 'YYYY-MM-DD'), 48.50, 0, 'R14', 'T4');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK38', TO_DATE('2023-10-05', 'YYYY-MM-DD'), 47.75, 0, 'R15', 'T5');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK39', TO_DATE('2023-11-10', 'YYYY-MM-DD'), 47.00, 0, 'R16', 'T6');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK40', TO_DATE('2023-12-15', 'YYYY-MM-DD'), 46.25, 0, 'R17', 'T7');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK41', TO_DATE('2023-12-20', 'YYYY-MM-DD'), 45.50, 0, 'R18', 'T8');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK42', TO_DATE('2023-12-22', 'YYYY-MM-DD'), 44.75, 0, 'R19', 'T9');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK43', TO_DATE('2023-12-24', 'YYYY-MM-DD'), 44.00, 0, 'R20', 'T10');
+
+
+
+
 -- Ajouter des enregistrements supplémentaires dans la table Compagnie_Theatre
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T1');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C4', 'T2');
@@ -199,6 +234,55 @@ VALUES ('R2', 'EFREI_BORDEAUX', TO_DATE('2023-01-07', 'YYYY-MM-DD'), 55.00, 'T1'
 
 
 -- Sélects pour afficher le contenu des tables 
+
+-- liste de tout les thétres avec leurs représenataion
+SELECT Theatre.Nom AS Theatre_Nom, Representation.Titre AS Representation_Titre, Representation.Date_representation
+FROM Theatre
+JOIN Representation ON Theatre.ID_theatre = Representation.ID_theatre;
+
+-- select de ticket associé à leurs représenation
+SELECT Ticket.ID_ticket, Ticket.Date_ticket, Ticket.Prix AS Ticket_Prix, Ticket.Reduction,
+       Representation.Titre AS Representation_Titre, Representation.Date_representation,
+       Theatre.Nom AS Theatre_Nom
+FROM Ticket
+JOIN Representation ON Ticket.ID_representation = Representation.ID_representation
+JOIN Theatre ON Ticket.ID_theatre = Theatre.ID_theatre;
+
+
+-- Liste des représentations avec le titre, la date, le prix, le nom du théâtre et l'adresse du théâtre 
+SELECT Representation.ID_representation, Representation.Titre, Representation.Date_representation,
+       Representation.Prix, Theatre.Nom AS Theatre_Nom, Theatre.Adresse AS Theatre_Adresse
+FROM Representation
+JOIN Theatre ON Representation.ID_theatre = Theatre.ID_theatre;
+
+
+
+-- Nombre de ticket vendu par représentation
+SELECT
+  Representation.ID_representation,
+  Representation.Titre,
+  COUNT(Ticket.ID_ticket) AS Nombre_Tickets_Vendus
+FROM
+  Representation
+LEFT JOIN
+  Ticket ON Representation.ID_representation = Ticket.ID_representation
+GROUP BY
+  Representation.ID_representation, Representation.Titre;
+
+
+-- chiffre d'affaire par scéance 
+SELECT
+  Representation.ID_representation,
+  Representation.Titre,
+  SUM(Ticket.Prix) AS chiffre_d_affaire_par_sceance
+FROM
+  Representation
+LEFT JOIN
+  Ticket ON Representation.ID_representation = Ticket.ID_representation
+GROUP BY
+  Representation.ID_representation, Representation.Titre;
+
+
 
 SELECT * FROM Theatre;
 
@@ -234,6 +318,19 @@ SELECT * FROM Production_Relation;
 
 select * from Compagnie_Theatre;
 
+
+
+
+
+--  Theater Companies and Their Productions:
+SELECT
+  TC.Nom AS TheaterCompany,
+  P.Titre AS Production
+FROM
+  Theatre_compagnie TC
+JOIN Production_Relation PR ON TC.ID_compagnie = PR.ID_production
+JOIN Theatre T ON PR.ID_theatre_joue = T.ID_theatre
+JOIN Production P ON PR.ID_production = P.ID_production;
 
 
 -- FONCTIONS
@@ -403,15 +500,5 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
 END;
 /
-
-
-
-
-
-
-
-
-
-
 
 
