@@ -708,5 +708,35 @@ END Payment_Rules;
 CALL Payment_Rules;
 
 
+-- Représentations non jouées dans certains théâtres
+SELECT r.ID_representation, r.Titre, r.Date_representation, t.ID_theatre, t.Nom
+FROM Representation r, Theatre t
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Ticket ti
+    WHERE ti.ID_representation = r.ID_representation AND ti.ID_theatre = t.ID_theatre
+);
+
+
+-- Représentations les plus populaires à une certaine période:
+SELECT r.ID_representation, r.Titre, r.Date_representation, COUNT(t.ID_ticket) AS Nombre_de_tickets_vendus
+FROM Representation r
+LEFT JOIN Ticket t ON r.ID_representation = t.ID_representation
+WHERE r.Date_representation BETWEEN TO_DATE('2023-06-01', 'YYYY-MM-DD') AND TO_DATE('2023-06-30', 'YYYY-MM-DD')
+GROUP BY r.ID_representation, r.Titre, r.Date_representation
+ORDER BY Nombre_de_tickets_vendus DESC
+FETCH FIRST 5 ROWS ONLY;
+
+-- Nombre de représentations
+SELECT COUNT(*) AS Nombre_de_representation
+FROM Representation;
+
+-- Nombre de spectateurs potentiels
+SELECT SUM(Capacite) AS Nombre_de_spectateurs_potentiels
+FROM Theatre;
+
+-- Nombre de places vendues
+SELECT COUNT(*) AS Nombre_de_places_vendues
+FROM Ticket;
 
 
