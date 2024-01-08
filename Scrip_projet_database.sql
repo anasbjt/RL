@@ -309,61 +309,91 @@ WHERE ID_theatre <> 'T1';
 
 
 
--- Fonction à retravailler :
-
-CREATE OR REPLACE FUNCTION AdjustTicketPrice(
-    p_titre VARCHAR2,
-    p_date DATE,
-    p_is_student VARCHAR2
-) RETURN DECIMAL IS
-    v_price DECIMAL(10,2);
-    v_discount DECIMAL(10,2) := 0.00;
-    v_capacity DECIMAL(5,2);
-    v_fill_percentage DECIMAL(5,2);
+CREATE OR REPLACE FUNCTION CalculateTicketPrice(
+    p_representation_id VARCHAR2,
+    p_discount_percentage NUMBER DEFAULT 0
+) RETURN NUMBER
+IS
+    v_base_price NUMBER;
+    v_discounted_price NUMBER;
 BEGIN
-    SELECT Prix INTO v_price
+    -- Get the base price from the Representation table using the provided ID
+    SELECT Prix INTO v_base_price
     FROM Representation
-    WHERE Titre = p_titre AND Date_representation = p_date;
+    WHERE ID_representation = p_representation_id;
 
-    SELECT Capacite INTO v_capacity
-    FROM Theatre
-    WHERE ID_theatre IN (
-        SELECT ID_theatre
-        FROM Representation
-        WHERE Titre = p_titre AND Date_representation = p_date
-    );
+    -- Calculate the discounted price
+    v_discounted_price := v_base_price - (v_base_price * (p_discount_percentage / 100));
 
-    SELECT (COUNT(*) * 100 / v_capacity) INTO v_fill_percentage
-    FROM Ticket
-    WHERE ID_representation IN (
-        SELECT ID_representation
-        FROM Representation
-        WHERE Titre = p_titre AND Date_representation = p_date
-    );
-
-    IF p_is_student = 'TRUE' THEN
-    v_discount := 0.20;
-END IF;
-
-    IF p_date < SYSDATE - 15 THEN
-        v_discount := 0.20;
+    -- Ensure the price is not negative
+    IF v_discounted_price < 0 THEN
+        v_discounted_price := 0;
     END IF;
 
-    IF v_fill_percentage < 50 THEN
-        v_discount := 0.30;
-    END IF;
-
-    IF v_fill_percentage < 30 THEN
-        v_discount := 0.50;
-    END IF;
-
-    RETURN v_price * (1 - v_discount);
+    RETURN v_discounted_price;
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        RETURN -1;  -- Indicates no data found for the given criteria
+        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
     WHEN OTHERS THEN
-        RETURN -2;  -- Indicates an error occurred
-END AdjustTicketPrice;
+        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
+END CalculateTicketPrice;
+
+
+
+DECLARE
+    v_ticket_price DECIMAL(10,2);
+BEGIN
+    v_ticket_price := CalculateTicketPrice('R11', 10); -- on aura 10% de réduction pour la representation avec l'ID 'R11'
+    DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
+END;
 /
 
-SELECT AdjustTicketPrice('La Bohème', TO_DATE('2023-01-20', 'YYYY-MM-DD'), 'TRUE') FROM DUAL;
+
+
+
+
+
+
+
+
+
+CREATE OR REPLACE FUNCTION CalculateTicketPrice(
+    p_representation_title VARCHAR2,
+    p_discount_percentage NUMBER DEFAULT 0
+) RETURN NUMBER
+IS
+    v_base_price NUMBER;
+    v_discounted_price NUMBER;
+BEGIN
+    -- Get the base price from the Representation table using the provided title
+    SELECT Prix INTO v_base_price
+    FROM Representation
+    WHERE Titre = p_representation_title;
+
+    -- Calculate the discounted price
+    v_discounted_price := v_base_price - (v_base_price * (p_discount_percentage / 100));
+
+    -- Ensure the price is not negative
+    IF v_discounted_price < 0 THEN
+        v_discounted_price := 0;
+    END IF;
+
+    RETURN v_discounted_price;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
+    WHEN OTHERS THEN
+        RETURN -1; -- Indicate an error, you can handle it accordingly in your application
+END CalculateTicketPrice;
+
+
+select * from representation;
+
+DECLARE
+    v_ticket_price DECIMAL(10,2);
+BEGIN
+    v_ticket_price := CalculateTicketPrice('La Bohème', 15);
+    DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
+END;
+
+-- au lieux de rentrer 15 en paramètre je veux rentrer si je suis étudiant ou non
