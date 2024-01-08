@@ -75,25 +75,25 @@ CREATE TABLE Compagnie_Theatre (
 ALTER TABLE Theatre_compagnie_name DROP COLUMN ID_theatre;
 
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T1', '789 Rue des Artistes', 'Théâtre de la Scène', 600, 110000.00);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T1', '789 Rue des Artistes', 'Théâtre de la Scène', 5, 110000.00);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T2', '123 Avenue des Arts', 'Théâtre Lumière', 350, 85000.50);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T2', '123 Avenue des Arts', 'Théâtre Lumière', 5, 85000.50);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T3', '567 Rue du Théâtre', 'Théâtre des Ombres', 900, 190000.75);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T3', '567 Rue du Théâtre', 'Théâtre des Ombres', 3, 190000.75);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T4', '890 Boulevard du Spectacle', 'Théâtre du Rêve', 500, 95000.25);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T4', '890 Boulevard du Spectacle', 'Théâtre du Rêve', 4, 95000.25);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T5', '432 Rue de la Scène', 'Théâtre Harmonie', 450, 88000.00);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T5', '432 Rue de la Scène', 'Théâtre Harmonie', 4, 88000.00);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T6', '654 Avenue du Spectacle', 'Théâtre Phoenix', 550, 105000.50);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T6', '654 Avenue du Spectacle', 'Théâtre Phoenix', 3, 105000.50);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T7', '876 Rue des Arts', 'Théâtre Renaissance', 800, 160000.00);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T7', '876 Rue des Arts', 'Théâtre Renaissance', 8, 160000.00);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T8', '345 Boulevard des Artistes', 'Théâtre Majestic', 700, 125000.00);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T8', '345 Boulevard des Artistes', 'Théâtre Majestic', 5, 125000.00);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T9', '210 Avenue du Théâtre', 'Théâtre Élégance', 650, 115000.50);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T9', '210 Avenue du Théâtre', 'Théâtre Élégance', 3, 115000.50);
 
-INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T10', '789 Rue du Spectacle', 'Théâtre Prestige', 750, 135000.00);
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T10', '789 Rue du Spectacle', 'Théâtre Prestige', 2, 135000.00);
 
 INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P1', 6000.00, 'T1');
 
@@ -257,6 +257,28 @@ JOIN Theatre ON Representation.ID_theatre = Theatre.ID_theatre;
 
 
 
+
+SELECT
+    T.ID_theatre,
+    T.Nom AS Nom_theatre,
+    T.Capacite AS Capacite_theatre,
+    COUNT(Ti.ID_ticket) AS Nombre_Billets_Vendus,
+    (COUNT(Ti.ID_ticket) / T.Capacite) * 100 AS Pourcentage_Remplissage
+FROM
+    Theatre T
+LEFT JOIN
+    Ticket Ti ON T.ID_theatre = Ti.ID_theatre
+GROUP BY
+    T.ID_theatre, T.Nom, T.Capacite
+ORDER BY
+    T.ID_theatre;
+
+
+
+
+
+
+
 -- Nombre de ticket vendu par représentation
 SELECT
   Representation.ID_representation,
@@ -317,20 +339,6 @@ SELECT * FROM Production;
 SELECT * FROM Production_Relation;
 
 select * from Compagnie_Theatre;
-
-
-
-
-
---  Theater Companies and Their Productions:
-SELECT
-  TC.Nom AS TheaterCompany,
-  P.Titre AS Production
-FROM
-  Theatre_compagnie TC
-JOIN Production_Relation PR ON TC.ID_compagnie = PR.ID_production
-JOIN Theatre T ON PR.ID_theatre_joue = T.ID_theatre
-JOIN Production P ON PR.ID_production = P.ID_production;
 
 
 -- FONCTIONS
@@ -448,7 +456,7 @@ select * from representation;
 DECLARE
     v_ticket_price DECIMAL(10,2);
 BEGIN
-    v_ticket_price := CalculateTicketPrice('La Bohème', 15);
+    v_ticket_price := CalculateTicketPrice('EFREI_PARIS', 15);
     DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
 END;
 
@@ -500,5 +508,74 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
 END;
 /
+
+
+
+
+
+CREATE OR REPLACE FUNCTION calculate_discount(
+    in_representation_id VARCHAR2,
+    in_current_date DATE
+)
+RETURN DECIMAL
+IS
+    v_capacity INT;
+    v_sold_tickets INT;
+    v_discount DECIMAL(10, 2);
+    v_representation_date DATE;
+BEGIN
+    -- Récupérer la capacité du théâtre pour la représentation donnée
+    SELECT Capacite
+    INTO v_capacity
+    FROM Theatre
+    WHERE ID_theatre = (
+        SELECT ID_theatre
+        FROM Representation
+        WHERE ID_representation = in_representation_id
+    );
+
+    -- Récupérer la date de la représentation
+    SELECT Date_representation
+    INTO v_representation_date
+    FROM Representation
+    WHERE ID_representation = in_representation_id;
+
+    -- Récupérer le nombre de billets vendus pour la représentation donnée
+    SELECT COUNT(ID_ticket)
+    INTO v_sold_tickets
+    FROM Ticket
+    WHERE ID_representation = in_representation_id;
+
+    -- Calculer le pourcentage de remplissage de la salle
+    IF v_capacity > 0 THEN
+        v_discount := (v_sold_tickets / v_capacity) * 100;
+    ELSE
+        v_discount := 0;
+    END IF;
+
+    -- Appliquer le rabais de 30% si c'est le jour de la représentation et la salle est remplie à moins de 50%
+    IF in_current_date = v_representation_date AND v_discount < 50 THEN
+        RETURN 0.30;  -- 30% de rabais
+    ELSE
+        RETURN 0;     -- Aucun rabais
+    END IF;
+END;
+/
+
+
+
+-- Exemple d'utilisation de la fonction
+DECLARE
+    discount DECIMAL;
+BEGIN
+    discount := calculate_discount('R11', SYSDATE);
+    DBMS_OUTPUT.PUT_LINE('Discount: ' || discount);
+END;
+/
+
+
+
+
+
 
 
