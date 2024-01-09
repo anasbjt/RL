@@ -221,8 +221,6 @@ INSERT INTO Theatre_Grant (ID_theatre, ID_agency, Amount) VALUES ('T2', 'C1', 50
 INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T1', 'M1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Mensuel');
 INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T2', 'C1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Semestriel');
 
-
--- Ajouter 10 tickets supplémentaires
 INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
 VALUES ('TICK34', TO_DATE('2023-06-15', 'YYYY-MM-DD'), 55.00, 0, 'R11', 'T1');
 
@@ -254,18 +252,13 @@ INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, 
 VALUES ('TICK43', TO_DATE('2023-12-24', 'YYYY-MM-DD'), 44.00, 0, 'R20', 'T10');
 
 
-
-
--- Ajouter des enregistrements supplémentaires dans la table Compagnie_Theatre
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T1');
 INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C4', 'T2');
 
 
--- Insérer la première représentation
 INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre)
 VALUES ('R1', 'EFREI_PARIS', TO_DATE('2023-01-07', 'YYYY-MM-DD'), 50.00, 'T1');
 
--- Insérer la deuxième représentation qui a lieu en même temps que la première dans le même théâtre
 INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre)
 VALUES ('R2', 'EFREI_BORDEAUX', TO_DATE('2023-01-07', 'YYYY-MM-DD'), 55.00, 'T1');
 
