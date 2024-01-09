@@ -1,0 +1,103 @@
+CREATE TABLE Theatre (
+   ID_theatre VARCHAR(50) PRIMARY KEY,
+   Adresse VARCHAR(50),
+   Nom VARCHAR(50),
+   Capacite INT,
+   Budget DECIMAL(10,2)
+);
+
+CREATE TABLE Representation (
+   ID_representation VARCHAR(50) PRIMARY KEY,
+   Titre VARCHAR(50),
+   Date_representation DATE,
+   Prix DECIMAL(10,2),
+   ID_theatre VARCHAR(50) NOT NULL,
+   FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Ticket (
+   ID_ticket VARCHAR(50) PRIMARY KEY,
+   Date_ticket DATE,
+   Prix DECIMAL(10,2),
+   Reduction INT,
+   ID_representation VARCHAR(50) NOT NULL,
+   ID_theatre VARCHAR(50) NOT NULL,
+   FOREIGN KEY (ID_representation) REFERENCES Representation(ID_representation),
+   FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Recette (
+   ID_recette VARCHAR(50) PRIMARY KEY,
+   Date_recette DATE,
+   Chiffre_affaire DECIMAL(10,2),
+   ID_theatre VARCHAR(50) NOT NULL,
+   FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Theatre_compagnie (
+   ID_compagnie VARCHAR(50) PRIMARY KEY,
+   Nom VARCHAR(50),
+   ID_theatre VARCHAR(50) NOT NULL,
+   FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Production (
+   ID_production VARCHAR(50) PRIMARY KEY,
+   Prix DECIMAL(10,2),
+   ID_theatre VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Production_Relation (
+   ID_production VARCHAR(50) NOT NULL,
+   ID_theatre_joue VARCHAR(50) NOT NULL,
+   PRIMARY KEY (ID_production, ID_theatre_joue),
+   FOREIGN KEY (ID_production) REFERENCES Production(ID_production),
+   FOREIGN KEY (ID_theatre_joue) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Theatre_Compagnie_name (
+    ID_compagnie VARCHAR(50) NOT NULL,
+    Nom VARCHAR(50) NOT NULL,
+    ID_theatre VARCHAR(50) NOT NULL,
+    PRIMARY KEY (ID_compagnie),
+    FOREIGN KEY (ID_compagnie) REFERENCES Theatre_compagnie_name(ID_compagnie),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre)
+);
+
+CREATE TABLE Compagnie_Theatre (
+    ID_compagnie VARCHAR(50) NOT NULL,
+    ID_theatre VARCHAR(50) NOT NULL,
+    FOREIGN KEY (ID_compagnie) REFERENCES Theatre_compagnie_name(ID_compagnie),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+    PRIMARY KEY (ID_compagnie, ID_theatre)
+);
+
+CREATE TABLE Grant_Agency (
+    ID_agency VARCHAR(50) PRIMARY KEY,
+    Name VARCHAR(50)
+);
+
+CREATE TABLE Theatre_Grant (
+    ID_theatre VARCHAR(50),
+    ID_agency VARCHAR(50),
+    Amount DECIMAL(10,2),
+    PRIMARY KEY (ID_theatre, ID_agency),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+    FOREIGN KEY (ID_agency) REFERENCES Grant_Agency(ID_agency)
+);
+
+
+CREATE TABLE Grant_Schedule (
+    ID_theatre VARCHAR(50),
+    ID_agency VARCHAR(50),
+    Start_Date DATE,
+    End_Date DATE,
+    Payment_Frequency VARCHAR(50),
+    PRIMARY KEY (ID_theatre, ID_agency),
+    FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+    FOREIGN KEY (ID_agency) REFERENCES Grant_Agency(ID_agency)
+);
+
+ALTER TABLE Theatre ADD Balance DECIMAL(10,2) DEFAULT 0;
+
+ALTER TABLE Theatre_compagnie_name DROP COLUMN ID_theatre;
