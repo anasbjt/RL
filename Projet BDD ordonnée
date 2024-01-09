@@ -590,7 +590,7 @@ BEGIN
     -- Calculer le pourcentage de remplissage de la salle
     IF v_theatre_capacity > 0 THEN
         v_discounted_price := CASE
-            WHEN (v_sold_tickets / v_theatre_capacity) * 100 > 50 THEN
+            WHEN (v_sold_tickets / v_theatre_capacity) * 100 > 30 THEN
                 v_ticket_price * (1 - v_discount)
             ELSE
                 v_ticket_price
@@ -668,42 +668,34 @@ END;
 
 CALL Calculate_Balance;
 
-    
 
-    
 CREATE OR REPLACE PROCEDURE Payment_Rules AS
     total_fees DECIMAL(10, 2);
     staging_costs DECIMAL(10, 2);
     travel_expenses DECIMAL(10, 2);
 BEGIN
-    -- Calcul des frais totaux pour les comédiens
     SELECT SUM(Prix)
     INTO total_fees
     FROM Ticket
-    WHERE ID_theatre = 'T1' -- Vous pouvez ajuster le théâtre selon vos besoins
-    AND Reduction = 0; -- Assumant que les frais complets sont sans réduction
+    WHERE ID_theatre = 'T1' AND Reduction = 0;
 
-    -- Calcul des coûts de mise en scène pour le théâtre T1
     SELECT Prix
     INTO staging_costs
     FROM Production
     WHERE ID_theatre = 'T1';
 
-    -- Calcul des frais de déplacement pour le théâtre T1
     SELECT SUM(Prix)
     INTO travel_expenses
     FROM Ticket
-    WHERE ID_theatre = 'T1' -- Vous pouvez ajuster le théâtre selon vos besoins
-    AND Reduction > 0; -- Assumant que les frais de déplacement ont une réduction
+    WHERE ID_theatre = 'T1' AND Reduction > 0;
 
-    -- Affichage des résultats
     DBMS_OUTPUT.PUT_LINE('Frais totaux des comédiens pour le théâtre T1 : ' || total_fees);
     DBMS_OUTPUT.PUT_LINE('Coûts de mise en scène pour le théâtre T1 : ' || staging_costs);
     DBMS_OUTPUT.PUT_LINE('Frais de déplacement pour le théâtre T1 : ' || travel_expenses);
-
-    -- Vous pouvez ajouter ici la logique pour effectuer les paiements en fonction des résultats calculés
 END Payment_Rules;
 /
+
+ 
 
 CALL Payment_Rules;
 
