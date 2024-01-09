@@ -1,0 +1,131 @@
+-- Sélects pour afficher le contenu des tables 
+
+-- liste de tout les thétres avec leurs représenataion
+SELECT Theatre.Nom AS Theatre_Nom, Representation.Titre AS Representation_Titre, Representation.Date_representation
+FROM Theatre
+JOIN Representation ON Theatre.ID_theatre = Representation.ID_theatre;
+
+-- select de ticket associé à leurs représenation
+SELECT Ticket.ID_ticket, Ticket.Date_ticket, Ticket.Prix AS Ticket_Prix, Ticket.Reduction,
+       Representation.Titre AS Representation_Titre, Representation.Date_representation,
+       Theatre.Nom AS Theatre_Nom
+FROM Ticket
+JOIN Representation ON Ticket.ID_representation = Representation.ID_representation
+JOIN Theatre ON Ticket.ID_theatre = Theatre.ID_theatre;
+
+
+-- Liste des représentations avec le titre, la date, le prix, le nom du théâtre et l'adresse du théâtre 
+SELECT Representation.ID_representation, Representation.Titre, Representation.Date_representation,
+       Representation.Prix, Theatre.Nom AS Theatre_Nom, Theatre.Adresse AS Theatre_Adresse
+FROM Representation
+JOIN Theatre ON Representation.ID_theatre = Theatre.ID_theatre;
+
+
+
+-- Remplissage de la capacité d'un théatre en %
+SELECT
+    T.ID_theatre,
+    T.Nom AS Nom_theatre,
+    T.Capacite AS Capacite_theatre,
+    COUNT(Ti.ID_ticket) AS Nombre_Billets_Vendus,
+    (COUNT(Ti.ID_ticket) / T.Capacite) * 100 AS Pourcentage_Remplissage
+FROM
+    Theatre T
+LEFT JOIN
+    Ticket Ti ON T.ID_theatre = Ti.ID_theatre
+GROUP BY
+    T.ID_theatre, T.Nom, T.Capacite
+ORDER BY
+    T.ID_theatre;
+
+
+
+-- Nombre de ticket vendu par représentation
+SELECT
+  Representation.ID_representation,
+  Representation.Titre,
+  COUNT(Ticket.ID_ticket) AS Nombre_Tickets_Vendus
+FROM
+  Representation
+LEFT JOIN
+  Ticket ON Representation.ID_representation = Ticket.ID_representation
+GROUP BY
+  Representation.ID_representation, Representation.Titre;
+
+
+-- chiffre d'affaire par scéance 
+SELECT
+  Representation.ID_representation,
+  Representation.Titre,
+  SUM(Ticket.Prix) AS chiffre_d_affaire_par_sceance
+FROM
+  Representation
+LEFT JOIN
+  Ticket ON Representation.ID_representation = Ticket.ID_representation
+GROUP BY
+  Representation.ID_representation, Representation.Titre;
+
+-- Représentations non jouées dans certains théâtres
+SELECT r.ID_representation, r.Titre, r.Date_representation, t.ID_theatre, t.Nom
+FROM Representation r, Theatre t
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Ticket ti
+    WHERE ti.ID_representation = r.ID_representation AND ti.ID_theatre = t.ID_theatre
+);
+
+
+-- Représentations les plus populaires à une certaine période:
+SELECT r.ID_representation, r.Titre, r.Date_representation, COUNT(t.ID_ticket) AS Nombre_de_tickets_vendus
+FROM Representation r
+LEFT JOIN Ticket t ON r.ID_representation = t.ID_representation
+WHERE r.Date_representation BETWEEN TO_DATE('2023-06-01', 'YYYY-MM-DD') AND TO_DATE('2023-06-30', 'YYYY-MM-DD')
+GROUP BY r.ID_representation, r.Titre, r.Date_representation
+ORDER BY Nombre_de_tickets_vendus DESC
+FETCH FIRST 5 ROWS ONLY;
+
+-- Nombre de représentations
+SELECT COUNT(*) AS Nombre_de_representation
+FROM Representation;
+
+-- Nombre de spectateurs potentiels
+SELECT SUM(Capacite) AS Nombre_de_spectateurs_potentiels
+FROM Theatre;
+
+-- Nombre de places vendues
+SELECT COUNT(*) AS Nombre_de_places_vendues
+FROM Ticket;
+
+SELECT * FROM Theatre;
+
+SELECT * FROM Representation;
+
+SELECT * FROM Ticket;
+
+SELECT * FROM Recette;
+
+SELECT * FROM Theatre_compagnie;
+
+SELECT * FROM Production;
+
+SELECT * FROM Production_Relation;
+
+SELECT * FROM Theatre;
+
+SELECT * FROM Representation;
+
+SELECT * FROM Ticket;
+
+SELECT * FROM Representation;
+
+SELECT * FROM Recette;
+
+SELECT * FROM Theatre_compagnie;
+
+SELECT * FROM Theatre_compagnie;
+
+SELECT * FROM Production;
+
+SELECT * FROM Production_Relation;
+
+select * from Compagnie_Theatre;
