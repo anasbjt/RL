@@ -1,0 +1,158 @@
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T1', '789 Rue des Artistes', 'Théâtre de la Scène', 5, 110000.00);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T2', '123 Avenue des Arts', 'Théâtre Lumière', 5, 85000.50);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T3', '567 Rue du Théâtre', 'Théâtre des Ombres', 3, 190000.75);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T4', '890 Boulevard du Spectacle', 'Théâtre du Rêve', 4, 95000.25);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T5', '432 Rue de la Scène', 'Théâtre Harmonie', 4, 88000.00);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T6', '654 Avenue du Spectacle', 'Théâtre Phoenix', 3, 105000.50);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T7', '876 Rue des Arts', 'Théâtre Renaissance', 8, 160000.00);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T8', '345 Boulevard des Artistes', 'Théâtre Majestic', 5, 125000.00);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T9', '210 Avenue du Théâtre', 'Théâtre Élégance', 3, 115000.50);
+
+INSERT INTO Theatre (ID_theatre, Adresse, Nom, Capacite, Budget) VALUES ('T10', '789 Rue du Spectacle', 'Théâtre Prestige', 2, 135000.00);
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P1', 6000.00, 'T1');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P2', 5500.50, 'T2');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P3', 5200.75, 'T3');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P4', 6100.00, 'T4');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P5', 5700.50, 'T5');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P6', 5400.75, 'T6');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P7', 6200.00, 'T7');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P8', 5600.50, 'T8');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P9', 5300.75, 'T9');
+
+INSERT INTO Production (ID_production, Prix, ID_theatre) VALUES ('P10', 6400.00, 'T10');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R11', 'La Traviata', TO_DATE('2023-06-20', 'YYYY-MM-DD'), 52.00, 'T1');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R12', 'La Flûte enchantée', TO_DATE('2023-07-25', 'YYYY-MM-DD'), 53.75, 'T2');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R13', 'Carmen', TO_DATE('2023-08-30', 'YYYY-MM-DD'), 49.50, 'T3');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R14', 'La Bohème', TO_DATE('2023-09-05', 'YYYY-MM-DD'), 48.25, 'T4');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R15', 'Don Giovanni', TO_DATE('2023-10-10', 'YYYY-MM-DD'), 51.50, 'T5');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R16', 'Madame Butterfly', TO_DATE('2023-11-15', 'YYYY-MM-DD'), 50.75, 'T6');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R17', 'Rigoletto', TO_DATE('2023-12-20', 'YYYY-MM-DD'), 49.25, 'T7');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R18', 'La Traviata', TO_DATE('2023-06-25', 'YYYY-MM-DD'), 52.00, 'T8');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R19', 'La Flûte enchantée', TO_DATE('2023-07-30', 'YYYY-MM-DD'), 53.75, 'T9');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre) VALUES ('R20', 'Carmen', TO_DATE('2023-08-05', 'YYYY-MM-DD'), 49.50, 'T10');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK18', TO_DATE('2023-07-20', 'YYYY-MM-DD'), 54.50, 0, 'R5', 'T2');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK19', TO_DATE('2023-08-25', 'YYYY-MM-DD'), 49.00, 0, 'R6', 'T3');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK20', TO_DATE('2023-09-30', 'YYYY-MM-DD'), 48.25, 0, 'R7', 'T4');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK21', TO_DATE('2023-10-05', 'YYYY-MM-DD'), 47.50, 0, 'R8', 'T5');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK22', TO_DATE('2023-11-10', 'YYYY-MM-DD'), 46.75, 0, 'R9', 'T6');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK23', TO_DATE('2023-12-15', 'YYYY-MM-DD'), 45.00, 0, 'R10', 'T7');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK24', TO_DATE('2023-12-20', 'YYYY-MM-DD'), 44.25, 0, 'R11', 'T8');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK25', TO_DATE('2023-12-22', 'YYYY-MM-DD'), 43.50, 0, 'R12', 'T9');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK26', TO_DATE('2023-12-24', 'YYYY-MM-DD'), 42.75, 0, 'R13', 'T10');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK27', TO_DATE('2023-06-10', 'YYYY-MM-DD'), 54.50, 0, 'R11', 'T1');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK28', TO_DATE('2023-07-15', 'YYYY-MM-DD'), 49.00, 0, 'R12', 'T2');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK29', TO_DATE('2023-08-20', 'YYYY-MM-DD'), 48.25, 0, 'R13', 'T3');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK30', TO_DATE('2023-09-25', 'YYYY-MM-DD'), 47.50, 0, 'R14', 'T4');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK31', TO_DATE('2023-10-30', 'YYYY-MM-DD'), 46.75, 0, 'R15', 'T5');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK32', TO_DATE('2023-11-05', 'YYYY-MM-DD'), 46.00, 0, 'R16', 'T6');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre) VALUES ('TICK33', TO_DATE('2023-12-10', 'YYYY-MM-DD'), 45.25, 0, 'R17', 'T7');
+
+INSERT INTO Theatre_compagnie_name (ID_compagnie, Nom) VALUES ('C1', 'Compagnie_Anas');
+INSERT INTO Theatre_compagnie_name (ID_compagnie, Nom) VALUES ('C2', 'Compagnie_Mordjane');
+INSERT INTO Theatre_compagnie_name (ID_compagnie, Nom) VALUES ('C3', 'Compagnie_Felix');
+INSERT INTO Theatre_compagnie_name (ID_compagnie, Nom) VALUES ('C4', 'Compagnie_UGC');
+
+
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C1', 'T1');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C2', 'T2');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T3');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T4');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C1', 'T5');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C2', 'T6');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T7');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T8');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C2', 'T9');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C1', 'T10');
+
+INSERT INTO Grant_Agency (ID_agency, Name) VALUES ('M1', 'Municipalité');
+INSERT INTO Grant_Agency (ID_agency, Name) VALUES ('C1', 'Ministère de la Culture');
+
+INSERT INTO Theatre_Grant (ID_theatre, ID_agency, Amount) VALUES ('T1', 'M1', 20000.00);
+INSERT INTO Theatre_Grant (ID_theatre, ID_agency, Amount) VALUES ('T2', 'C1', 50000.00);
+
+INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T1', 'M1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Mensuel');
+INSERT INTO Grant_Schedule (ID_theatre, ID_agency, Start_Date, End_Date, Payment_Frequency) VALUES ('T2', 'C1', TO_DATE('2023-01-01', 'YYYY-MM-DD'), TO_DATE('2028-01-01', 'YYYY-MM-DD'), 'Semestriel');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK34', TO_DATE('2023-06-15', 'YYYY-MM-DD'), 55.00, 0, 'R11', 'T1');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK35', TO_DATE('2023-07-20', 'YYYY-MM-DD'), 50.00, 0, 'R12', 'T2');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK36', TO_DATE('2023-08-25', 'YYYY-MM-DD'), 49.25, 0, 'R13', 'T3');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK37', TO_DATE('2023-09-30', 'YYYY-MM-DD'), 48.50, 0, 'R14', 'T4');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK38', TO_DATE('2023-10-05', 'YYYY-MM-DD'), 47.75, 0, 'R15', 'T5');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK39', TO_DATE('2023-11-10', 'YYYY-MM-DD'), 47.00, 0, 'R16', 'T6');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK40', TO_DATE('2023-12-15', 'YYYY-MM-DD'), 46.25, 0, 'R17', 'T7');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK41', TO_DATE('2023-12-20', 'YYYY-MM-DD'), 45.50, 0, 'R18', 'T8');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK42', TO_DATE('2023-12-22', 'YYYY-MM-DD'), 44.75, 0, 'R19', 'T9');
+
+INSERT INTO Ticket (ID_ticket, Date_ticket, Prix, Reduction, ID_representation, ID_theatre)
+VALUES ('TICK43', TO_DATE('2023-12-24', 'YYYY-MM-DD'), 44.00, 0, 'R20', 'T10');
+
+
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C3', 'T1');
+INSERT INTO Compagnie_Theatre (ID_compagnie, ID_theatre) VALUES ('C4', 'T2');
+
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre)
+VALUES ('R1', 'EFREI_PARIS', TO_DATE('2023-01-07', 'YYYY-MM-DD'), 50.00, 'T1');
+
+INSERT INTO Representation (ID_representation, Titre, Date_representation, Prix, ID_theatre)
+VALUES ('R2', 'EFREI_BORDEAUX', TO_DATE('2023-01-07', 'YYYY-MM-DD'), 55.00, 'T1');
