@@ -1,0 +1,324 @@
+-- FONCTIONS
+
+-- Fonction qui affiche les représentations joués en même temps
+CREATE OR REPLACE FUNCTION findDuplicateShows RETURN VARCHAR2 AS
+  TYPE showRecord IS RECORD (
+    Titre1 Representation.Titre%TYPE,
+    Theatre1 Representation.ID_theatre%TYPE,
+    Titre2 Representation.Titre%TYPE,
+    Theatre2 Representation.ID_theatre%TYPE
+  );
+
+  TYPE showTable IS TABLE OF showRecord INDEX BY PLS_INTEGER;
+
+  showInfo VARCHAR2(500) := '';
+  showList showTable;
+  counter PLS_INTEGER := 0;
+BEGIN
+  FOR rec IN (
+    SELECT DISTINCT
+      R1.Titre AS Titre1, R1.ID_theatre AS Theatre1,
+      R2.Titre AS Titre2, R2.ID_theatre AS Theatre2
+    FROM
+      Representation R1
+    JOIN
+      Representation R2
+    ON
+      R1.ID_theatre = R2.ID_theatre
+      AND R1.Date_representation = R2.Date_representation
+      AND R1.ID_representation != R2.ID_representation
+  ) LOOP
+    counter := counter + 1;
+    showList(counter) := rec;
+  END LOOP;
+
+  IF counter > 0 THEN
+    FOR i IN 1..counter LOOP
+      showInfo := showInfo || 'Les représentations ' || showList(i).Titre1 || ' au théâtre ' || showList(i).Theatre1 || ' et ' || showList(i).Titre2 || ' au théâtre ' || showList(i).Theatre2 || ' sont jouées en même temps.' || CHR(10);
+    END LOOP;
+    RETURN showInfo;
+  ELSE
+    RETURN 'Aucune représentation jouée en même temps.';
+  END IF;
+
+EXCEPTION
+  WHEN OTHERS THEN
+    RETURN 'Erreur lors de la recherche des représentations.';
+END;
+/
+
+SELECT findDuplicateShows FROM DUAL;
+
+
+-- Fonction récup prix bilets date
+CREATE OR REPLACE FUNCTION GetTicketInfo RETURN VARCHAR2 AS
+  ticketInfo VARCHAR2(1000);
+BEGIN
+  -- Obtient les prix des billets pour la date spécifiée
+  SELECT 'Prix des billets pour le 20-DEC-23 : ' || TO_CHAR(Prix)
+  INTO ticketInfo
+  FROM Representation
+  WHERE Date_representation = TO_DATE('20-DEC-23', 'DD-MON-YY');
+
+  RETURN ticketInfo;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RETURN 'Aucune information disponible pour la date spécifiée.';
+END;
+/
+
+SELECT GetTicketInfo() FROM DUAL;
+
+
+-- Remplis la capacité des théatres à 60 sauf pour T1
+--UPDATE Theatre
+--SET Capacite = FLOOR(Capacite * 0.6)
+--WHERE ID_theatre <> 'T1';
+
+
+
+
+-- Fonction discount avec insert manuel
+CREATE OR REPLACE FUNCTION CalculateTicketPrice(
+    p_representation_title VARCHAR2,
+    p_discount_percentage NUMBER DEFAULT 0
+) RETURN NUMBER
+IS
+    v_base_price NUMBER;
+    v_discounted_price NUMBER;
+BEGIN
+   
+    SELECT Prix INTO v_base_price
+    FROM Representation
+    WHERE Titre = p_representation_title;
+
+    v_discounted_price := v_base_price - (v_base_price * (p_discount_percentage / 100));
+
+    
+    IF v_discounted_price < 0 THEN
+        v_discounted_price := 0;
+    END IF;
+
+    RETURN v_discounted_price;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN -1; 
+    WHEN OTHERS THEN
+        RETURN -1; 
+END CalculateTicketPrice;
+
+
+select * from representation;
+
+DECLARE
+    v_ticket_price DECIMAL(10,2);
+BEGIN
+    v_ticket_price := CalculateTicketPrice('EFREI_PARIS', 15);
+    DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
+END;
+
+
+
+-- Fonction Discout étudiant
+CREATE OR REPLACE FUNCTION CalculateTicketPrice(
+    p_representation_title VARCHAR2,
+    p_is_student BOOLEAN DEFAULT FALSE
+) RETURN NUMBER
+IS
+    v_base_price NUMBER;
+    v_discount_percentage NUMBER := 0;
+    v_discounted_price NUMBER;
+BEGIN
+-- Récupère le prix de base depuis la table Representation en utilisant le titre donné
+    SELECT Prix INTO v_base_price
+    FROM Representation
+    WHERE Titre = p_representation_title;
+
+-- Vérifie si le client est un étudiant et définit la réduction en conséquence
+    IF p_is_student THEN
+        v_discount_percentage := 20;
+    END IF;
+
+-- Calcule la réduction
+    v_discounted_price := v_base_price - (v_base_price * (v_discount_percentage / 100));
+
+-- Assure que le prix ne soit pas négatif
+    IF v_discounted_price < 0 THEN
+        v_discounted_price := 0;
+    END IF;
+
+    RETURN v_discounted_price;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN -1; 
+    WHEN OTHERS THEN
+        RETURN -1; 
+END CalculateTicketPrice;
+/
+
+
+-- Example usage:
+DECLARE
+    v_ticket_price DECIMAL(10,2);
+BEGIN
+    v_ticket_price := CalculateTicketPrice('La Bohème', TRUE); -- Assuming the customer is a student
+    DBMS_OUTPUT.PUT_LINE('Ticket Price: ' || v_ticket_price);
+END;
+/
+
+
+
+
+
+
+
+-- calcule de la réduction 
+CREATE OR REPLACE FUNCTION calculate_discounted_price(
+    in_ticket_id VARCHAR2
+)
+RETURN DECIMAL
+IS
+    v_theatre_capacity INT;
+    v_sold_tickets INT;
+    v_discount DECIMAL(10, 2) := 0.30; -- 30% de rabais
+    v_ticket_price DECIMAL(10, 2);
+    v_discounted_price DECIMAL(10, 2);
+BEGIN
+    -- Récupérer la capacité du théâtre du ticket
+    SELECT T.Capacite
+    INTO v_theatre_capacity
+    FROM Theatre T
+    WHERE T.ID_theatre = (
+        SELECT R.ID_theatre
+        FROM Representation R
+        JOIN Ticket Ti ON R.ID_representation = Ti.ID_representation
+        WHERE Ti.ID_ticket = in_ticket_id
+    );
+
+    -- Récupérer le nombre de billets vendus pour la représentation du ticket
+    SELECT COUNT(Ti.ID_ticket)
+    INTO v_sold_tickets
+    FROM Ticket Ti
+    WHERE Ti.ID_representation = (
+        SELECT ID_representation
+        FROM Ticket
+        WHERE ID_ticket = in_ticket_id
+    );
+
+    -- Récupérer le prix du ticket
+    SELECT Ti.Prix
+    INTO v_ticket_price
+    FROM Ticket Ti
+    WHERE Ti.ID_ticket = in_ticket_id;
+
+    -- Calculer le pourcentage de remplissage de la salle
+    IF v_theatre_capacity > 0 THEN
+        v_discounted_price := CASE
+            WHEN (v_sold_tickets / v_theatre_capacity) * 100 > 30 THEN
+                v_ticket_price * (1 - v_discount)
+            ELSE
+                v_ticket_price
+        END;
+    ELSE
+        v_discounted_price := v_ticket_price;
+    END IF;
+
+    RETURN v_discounted_price;
+END;
+/
+
+
+
+-- Exemple d'utilisation de la fonction
+DECLARE
+    ticket_id VARCHAR2(50) := 'TICK34'; -- Remplacez par l'ID du ticket 
+    discounted_price DECIMAL(10, 2);
+BEGIN
+    discounted_price := calculate_discounted_price(ticket_id);
+    DBMS_OUTPUT.PUT_LINE('Discounted Price: ' || discounted_price);
+END;
+/
+
+
+
+CREATE OR REPLACE PROCEDURE Calculate_Balance AS
+BEGIN
+    -- Calcul du solde pour chaque théâtre
+    FOR rec IN (SELECT ID_theatre FROM Theatre) LOOP
+        DECLARE
+            total_revenue DECIMAL(10,2) := 0;
+            total_expense DECIMAL(10,2) := 0;
+            net_balance DECIMAL(10,2);
+        BEGIN
+            -- Calcul des revenus pour le mois en cours
+            SELECT SUM(Chiffre_affaire)
+            INTO total_revenue
+            FROM Recette
+            WHERE ID_theatre = rec.ID_theatre
+            AND EXTRACT(MONTH FROM Date_recette) = EXTRACT(MONTH FROM SYSDATE)
+            AND EXTRACT(YEAR FROM Date_recette) = EXTRACT(YEAR FROM SYSDATE);
+
+            -- Calcul des dépenses pour le mois en cours
+            SELECT SUM(Prix)
+            INTO total_expense
+            FROM Ticket
+            WHERE ID_theatre = rec.ID_theatre
+            AND EXTRACT(MONTH FROM Date_ticket) = EXTRACT(MONTH FROM SYSDATE)
+            AND EXTRACT(YEAR FROM Date_ticket) = EXTRACT(YEAR FROM SYSDATE);
+
+            -- Calcul du solde
+            net_balance := total_revenue - total_expense;
+
+            -- Mise à jour du solde dans la table Theatre
+            UPDATE Theatre
+            SET Balance = net_balance
+            WHERE ID_theatre = rec.ID_theatre;
+        END;
+    END LOOP;
+END Calculate_Balance;
+/
+
+
+
+CREATE OR REPLACE TRIGGER Trigger_Balance_Update
+AFTER INSERT ON Representation
+FOR EACH ROW
+BEGIN
+    -- Mettre à jour le solde après chaque représentation
+    Calculate_Balance;
+END;
+/
+
+
+CALL Calculate_Balance;
+
+
+CREATE OR REPLACE PROCEDURE Payment_Rules AS
+    total_fees DECIMAL(10, 2);
+    staging_costs DECIMAL(10, 2);
+    travel_expenses DECIMAL(10, 2);
+BEGIN
+    SELECT SUM(Prix)
+    INTO total_fees
+    FROM Ticket
+    WHERE ID_theatre = 'T1' AND Reduction = 0;
+
+    SELECT Prix
+    INTO staging_costs
+    FROM Production
+    WHERE ID_theatre = 'T1';
+
+    SELECT SUM(Prix)
+    INTO travel_expenses
+    FROM Ticket
+    WHERE ID_theatre = 'T1' AND Reduction > 0;
+
+    DBMS_OUTPUT.PUT_LINE('Frais totaux des comédiens pour le théâtre T1 : ' || total_fees);
+    DBMS_OUTPUT.PUT_LINE('Coûts de mise en scène pour le théâtre T1 : ' || staging_costs);
+    DBMS_OUTPUT.PUT_LINE('Frais de déplacement pour le théâtre T1 : ' || travel_expenses);
+END Payment_Rules;
+/
+
+ 
+
+CALL Payment_Rules;
