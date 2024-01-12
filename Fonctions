@@ -308,14 +308,8 @@ BEGIN
     FROM Production
     WHERE ID_theatre = 'T1';
 
-    SELECT SUM(Prix)
-    INTO travel_expenses
-    FROM Ticket
-    WHERE ID_theatre = 'T1' AND Reduction > 0;
-
     DBMS_OUTPUT.PUT_LINE('Frais totaux des comédiens pour le théâtre T1 : ' || total_fees);
     DBMS_OUTPUT.PUT_LINE('Coûts de mise en scène pour le théâtre T1 : ' || staging_costs);
-    DBMS_OUTPUT.PUT_LINE('Frais de déplacement pour le théâtre T1 : ' || travel_expenses);
 END Payment_Rules;
 /
 
