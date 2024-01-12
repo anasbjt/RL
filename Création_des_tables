@@ -44,8 +44,7 @@ CREATE TABLE Theatre_compagnie (
 CREATE TABLE Production (
    ID_production VARCHAR(50) PRIMARY KEY,
    Prix DECIMAL(10,2),
-   ID_theatre VARCHAR(50) NOT NULL,
-   FOREIGN KEY (ID_theatre) REFERENCES Theatre(ID_theatre),
+   ID_theatre VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Production_Relation (
